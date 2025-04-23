@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: actor-app-backend-staging
+spec:
+  replicas: 2 # Adjust as needed
+  selector:
+    matchLabels:
+      app: actor-app-backend-staging
+  template:
+    metadata:
+      labels:
+        app: actor-app-backend-staging
+    spec:
+      containers:
+        - name: actor-app-backend-staging
+          image: demiapps.azurecr.io/actor-app-backend-staging # Change this to your Docker image name
+          ports:
+            - containerPort: 80 # Change this to your Node.js application's port
+          resources:
+            requests:
+              cpu: "100m" # 0.1 CPU cores
+              memory: "128Mi" # 128MB
+            limits:
+              cpu: "500m" # 0.5 CPU cores
+              memory: "512Mi" # 512MB
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 5

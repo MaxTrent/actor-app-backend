@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: actor-app-backend-staging-service
+spec:
+  selector:
+    app: actor-app-backend-staging
+  ports:
+    - protocol: TCP
+      port: 80 # Expose your application on port 80 if needed, or change to your application's port
+      targetPort: 80 # Change this to your Node.js application's port
+  # type: LoadBalancer # Change this if you are using a different type of service
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: actor-app-backend-staging-service
+  annotations:
+    # kubernetes.io/ingress.class: azure/application-gateway
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    # appgw.ingress.kubernetes.io/backend-path-prefix: "/"
+    # appgw.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: azure-application-gateway
+  tls:
+    - hosts:
+        - staging.api.actorapp.com
+      secretName: actor-app-backend-staging-tls
+  rules:
+  -  host: staging.api.actorapp.com
+     http:
+      paths:
+      - path: /
+        backend:
+          service:
+            name: actor-app-backend-staging-service
+            port:
+              number: 80
+        pathType: Prefix
